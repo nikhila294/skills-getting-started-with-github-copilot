@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
-      const response = await fetch("/activities");
+  // Request fresh data to avoid stale/cached responses so the UI reflects recent changes
+  const response = await fetch("/activities", { cache: "no-store" });
       const activities = await response.json();
 
       // Clear loading message and existing items/options
@@ -64,7 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(p)}`, { method: "POST" });
                   const result = await response.json();
                   if (response.ok) {
-                    fetchActivities();
+                    // Refresh activities list after successful unregister
+                    await fetchActivities();
                   } else {
                     alert(result.detail || "Failed to unregister participant.");
                   }
@@ -117,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = "success";
         signupForm.reset();
 
-        // Refresh activities to show updated participants list
-        fetchActivities();
+  // Refresh activities to show updated participants list
+  await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
